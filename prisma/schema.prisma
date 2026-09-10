@@ -30,3 +30,22 @@ enum EnquiryStatus {
 	COMPLETED
 	ARCHIVED
 }
+
+model Service {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  shortDescription  String
+  description       String
+  image             String?
+  icon              String?
+  featured          Boolean  @default(false)
+  active            Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([active])
+  @@index([featured])
+  @@index([sortOrder])
+}
