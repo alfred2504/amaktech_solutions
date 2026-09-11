@@ -2784,6 +2784,160 @@ textarea {
 }
 
 /* =========================================
+   ADMIN DASHBOARD OVERVIEW
+   ========================================= */
+
+.dashboard-overview {
+  padding: 20px 0 50px;
+}
+
+.dashboard-overview-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.dashboard-overview-header h1 {
+  margin: 10px 0;
+}
+
+.dashboard-overview-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 20px;
+}
+
+.dashboard-stat-card {
+  display: block;
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--white);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--green);
+}
+
+.dashboard-stat-card strong {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 2.7rem;
+  line-height: 1;
+}
+
+.dashboard-stat-label {
+  display: block;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.dashboard-stat-description {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.dashboard-stat-highlight {
+  border-color: var(--gold);
+}
+
+.dashboard-stat-highlight .dashboard-stat-label {
+  color: var(--ink);
+}
+
+.dashboard-error {
+  margin-bottom: 25px;
+  padding: 15px 18px;
+  border: 1px solid #e2b4b4;
+  border-radius: 10px;
+  background: #fff5f5;
+  color: #9b2222;
+}
+
+.admin-quick-links {
+  padding: 30px 0 70px;
+}
+
+.admin-quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 20px;
+}
+
+.admin-card {
+  display: block;
+  padding: 25px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.admin-card h3 {
+  margin: 0 0 10px;
+}
+
+.admin-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .dashboard-stats-grid,
+  .admin-quick-links-grid {
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-overview-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-stats-grid,
+  .admin-quick-links-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
    PUBLIC TESTIMONIALS
    ========================================= */
 

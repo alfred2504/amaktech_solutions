@@ -1,136 +1,77 @@
+import { requireAdmin } from "@/lib/auth";
+import AdminDashboardOverview from "@/components/AdminDashboardOverview";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getAdminSession } from "@/lib/auth";
-import AdminLogoutButton from "@/components/AdminLogoutButton";
 
-const adminCards = [
-  {
-    number: "01",
-    title: "Enquiries",
-    description:
-      "View and manage project enquiries submitted through the AmakTech website.",
-    href: "/admin/enquiries",
-  },
-  {
-    number: "02",
-    title: "Services",
-    description:
-      "Manage AmakTech services including graphic design, CV design, websites, software and AI solutions.",
-    href: "/admin/services",
-  },
-  {
-    number: "03",
-    title: "Projects",
-    description:
-      "Manage projects and digital products presented on the AmakTech website.",
-    href: "/admin/projects",
-  },
-  {
-    number: "04",
-    title: "Testimonials",
-    description:
-      "Manage client testimonials and reviews.",
-    href: "/admin/testimonials",
-  },
-  {
-    number: "05",
-    title: "Media",
-    description:
-      "Manage images and visual assets used throughout the website.",
-    href: "/admin/media",
-  },
-];
-
-export default async function AdminDashboard() {
-  const session = await getAdminSession();
-
-  if (!session) {
-    redirect("/admin/login");
-  }
+export default async function AdminDashboardPage() {
+  await requireAdmin();
 
   return (
     <main className="admin-page">
+      <div className="container">
+        <AdminDashboardOverview />
 
-      <section className="page-hero">
-        <div className="container">
+        <section className="admin-quick-links">
+          <div className="section-heading">
+            <span className="section-label">
+              QUICK ACTIONS
+            </span>
 
-          <span className="section-label">
-            AMAKTECH ADMIN
-          </span>
+            <h2>Manage AmakTech</h2>
+          </div>
 
-          <h1>
-            Business
-            <span> dashboard.</span>
-          </h1>
-
-          <p>
-            Manage AmakTech Solutions enquiries,
-            services, projects and digital content
-            from one central workspace.
-          </p>
-
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-
-          <div className="admin-header">
-
-            <div>
-              <span className="section-label">
-                MANAGEMENT
-              </span>
-
-              <h2>
-                AmakTech Workspace
-              </h2>
-
-              <p className="admin-session-email">
-                Signed in as {session.email}
+          <div className="admin-quick-links-grid">
+            <Link
+              href="/admin/enquiries"
+              className="admin-card"
+            >
+              <h3>Enquiries</h3>
+              <p>
+                View and manage customer enquiries.
               </p>
-            </div>
+            </Link>
 
-            <div className="admin-actions">
+            <Link
+              href="/admin/services"
+              className="admin-card"
+            >
+              <h3>Services</h3>
+              <p>
+                Add, edit and manage your services.
+              </p>
+            </Link>
 
-              <Link
-                href="/"
-                className="btn btn-secondary"
-              >
-                View Website
-              </Link>
+            <Link
+              href="/admin/projects"
+              className="admin-card"
+            >
+              <h3>Projects</h3>
+              <p>
+                Manage your portfolio projects.
+              </p>
+            </Link>
 
-              <AdminLogoutButton />
+            <Link
+              href="/admin/testimonials"
+              className="admin-card"
+            >
+              <h3>Testimonials</h3>
+              <p>
+                Manage client testimonials.
+              </p>
+            </Link>
 
-            </div>
-
+            <Link
+              href="/admin/media"
+              className="admin-card"
+            >
+              <h3>Media</h3>
+              <p>
+                Manage website images and media.
+              </p>
+            </Link>
           </div>
-
-          <div className="admin-grid">
-
-            {adminCards.map((card) => (
-              <Link
-                href={card.href}
-                className="admin-card"
-                key={card.number}
-              >
-                <span>{card.number}</span>
-
-                <h3>{card.title}</h3>
-
-                <p>{card.description}</p>
-
-                <strong>
-                  Open →
-                </strong>
-              </Link>
-            ))}
-
-          </div>
-
-        </div>
-      </section>
-
+        </section>
+      </div>
     </main>
   );
 }
