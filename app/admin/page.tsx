@@ -27,6 +27,13 @@ const adminCards = [
   },
   {
     number: "04",
+    title: "Testimonials",
+    description:
+      "Manage client testimonials and reviews.",
+    href: "/admin/testimonials",
+  },
+  {
+    number: "05",
     title: "Media",
     description:
       "Manage images and visual assets used throughout the website.",

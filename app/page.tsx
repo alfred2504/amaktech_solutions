@@ -25,6 +25,7 @@ import {
 import ServiceShowcase from "@/components/ServiceShowcase";
 import FeaturedWork from "@/components/FeaturedWork";
 import AIIntro from "@/components/AIIntro";
+import Testimonials from "@/components/Testimonials";
 import { EnquiryForm } from "@/components/EnquiryForm";
 
 const technologies = [
@@ -215,6 +216,8 @@ export default function Home() {
 
       {/* PROJECTS */}
       <FeaturedWork />
+
+      <Testimonials />
 
       {/* TECHNOLOGIES */}
       <section id="technologies" className="section technologies-section">

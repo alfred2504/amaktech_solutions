@@ -70,3 +70,36 @@ model Project {
   @@index([featured])
   @@index([sortOrder])
 }
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  clientName  String
+  company     String?
+  role        String?
+  content     String
+  image       String?
+  rating      Int      @default(5)
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+  @@index([featured])
+  @@index([sortOrder])
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  type        String
+  altText     String?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([type])
+}
