@@ -90,6 +90,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </a>
               )}
 
+              <Link href="/contact" className="btn btn-secondary">
+                Get in touch
+              </Link>
+
               <Link href="/projects" className="btn btn-secondary">
                 All Projects
               </Link>

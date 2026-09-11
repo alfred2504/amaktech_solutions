@@ -25,6 +25,12 @@ export default async function ProjectsPage() {
             Explore selected AmakTech digital products, software projects
             and technology initiatives.
           </p>
+
+          <div className="page-hero-actions">
+            <Link href="/contact" className="btn btn-primary">
+              Get in touch
+            </Link>
+          </div>
         </div>
       </section>
 
