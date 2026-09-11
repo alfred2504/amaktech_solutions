@@ -1,51 +1,15 @@
 import Link from "next/link";
+import { getActiveProjects } from "@/lib/projects";
 
-const projects = [
-  {
-    slug: "amaktech-connect",
-    title: "AmakTech Connect",
-    category: "Digital Platform",
-    description:
-      "A digital platform developed as part of the AmakTech product ecosystem.",
-  },
-  {
-    slug: "amaktech-marketplace",
-    title: "AmakTech Marketplace",
-    category: "E-Commerce",
-    description:
-      "A marketplace concept focused on connecting customers with products and services.",
-  },
-  {
-    slug: "smartexpense-ai",
-    title: "SmartExpense AI",
-    category: "AI Application",
-    description:
-      "An AI-focused application designed around smarter personal expense management.",
-  },
-  {
-    slug: "careersync-ai",
-    title: "CareerSync AI",
-    category: "AI & Career Technology",
-    description:
-      "A digital career solution designed to support job seekers and professional development.",
-  },
-  {
-    slug: "educore",
-    title: "EduCore",
-    category: "Education Technology",
-    description:
-      "An education technology concept focused on improving digital learning experiences.",
-  },
-  {
-    slug: "personal-portfolio",
-    title: "Personal Portfolio",
-    category: "Web Development",
-    description:
-      "A professional digital portfolio demonstrating software engineering and creative capabilities.",
-  },
-];
+export const metadata = {
+  title: "Projects | AmakTech Solutions",
+  description:
+    "Explore software, AI, digital platforms, e-commerce and creative projects developed by AmakTech Solutions.",
+};
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const projects = await getActiveProjects();
+
   return (
     <main>
       <section className="page-hero">
@@ -66,27 +30,46 @@ export default function ProjectsPage() {
 
       <section className="section projects-section">
         <div className="container">
-          <div className="projects-grid">
-            {projects.map((project, index) => (
-              <article className="project-card" key={project.slug}>
-                <div className="project-content">
-                  <div className="project-number">
-                    {String(index + 1).padStart(2, "0")}
+          {projects.length === 0 ? (
+            <div className="empty-projects">
+              <h3>No projects available</h3>
+              <p>
+                Projects will appear here once they are published from the admin dashboard.
+              </p>
+            </div>
+          ) : (
+            <div className="projects-grid">
+              {projects.map((project, index) => (
+                <article className="project-card" key={project.id}>
+                  {project.image && (
+                    <div className="project-image">
+                      <img src={project.image} alt={project.name} />
+                    </div>
+                  )}
+
+                  <div className="project-content">
+                    <div className="project-number">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    {project.category && (
+                      <span className="project-category">
+                        {project.category}
+                      </span>
+                    )}
+
+                    <h3>{project.name}</h3>
+
+                    <p>{project.shortDescription}</p>
+
+                    <Link href={`/projects/${project.slug}`} className="text-link">
+                      View project ?
+                    </Link>
                   </div>
-
-                  <span>{project.category}</span>
-
-                  <h3>{project.title}</h3>
-
-                  <p>{project.description}</p>
-
-                  <Link href={`/projects/${project.slug}`}>
-                    View project →
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </main>

@@ -1,4 +1,6 @@
-import Link from "next/link";
+from pathlib import Path
+
+page = r'''import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProjectBySlug } from "@/lib/projects";
 
@@ -100,3 +102,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     </main>
   );
 }
+'''
+
+Path("app/projects/[slug]/page.tsx").write_text(page, encoding="utf-8")

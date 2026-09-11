@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -10,6 +13,8 @@ const navigation = [
 ];
 
 export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <header className="site-navbar">
       <div className="container site-navbar-inner">
@@ -43,6 +48,32 @@ export default function Navbar() {
           Get Started
         </Link>
 
+        {/* MOBILE HAMBURGER */}
+        <button
+          className="site-navbar-toggle"
+          type="button"
+          aria-label="Toggle mobile menu"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+      </div>
+
+      <div className={`site-mobile-menu ${mobileOpen ? "is-open" : ""}`}>
+        <nav className="site-mobile-nav">
+          {navigation.map((item) => (
+            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+          <Link href="/ai-assistant" className="site-mobile-ai" onClick={() => setMobileOpen(false)}>
+            AI Assistant
+          </Link>
+        </nav>
       </div>
     </header>
   );

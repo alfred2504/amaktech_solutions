@@ -49,3 +49,24 @@ model Service {
   @@index([featured])
   @@index([sortOrder])
 }
+
+model Project {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  shortDescription String
+  description      String
+  image            String?
+  category         String?
+  technologies     String?
+  liveUrl          String?
+  featured         Boolean  @default(false)
+  active           Boolean  @default(true)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([active])
+  @@index([featured])
+  @@index([sortOrder])
+}

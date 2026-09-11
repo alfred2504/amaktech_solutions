@@ -23,7 +23,7 @@ const adminCards = [
     title: "Projects",
     description:
       "Manage projects and digital products presented on the AmakTech website.",
-    href: "/projects",
+    href: "/admin/projects",
   },
   {
     number: "04",

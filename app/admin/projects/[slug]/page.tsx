@@ -3,11 +3,16 @@ import { notFound } from "next/navigation";
 import { getProjectBySlug } from "@/lib/projects";
 
 type ProjectPageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
 };
 
-export async function generateMetadata({ params }: ProjectPageProps) {
+export async function generateMetadata({
+  params,
+}: ProjectPageProps) {
   const { slug } = await params;
+
   const project = await getProjectBySlug(slug);
 
   if (!project) {
@@ -22,8 +27,11 @@ export async function generateMetadata({ params }: ProjectPageProps) {
   };
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectDetailPage({
+  params,
+}: ProjectPageProps) {
   const { slug } = await params;
+
   const project = await getProjectBySlug(slug);
 
   if (!project) {
@@ -32,16 +40,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   return (
     <main>
-      <section className="page-hero">
+      <section className="inner-hero">
         <div className="container">
           <span className="section-label">
-            {project.category || "PROJECT"}
+            AMAKTECH PROJECT
           </span>
 
-          <h1>
-            {project.name}
-            <span>.</span>
-          </h1>
+          <h1>{project.name}</h1>
 
           <p>{project.shortDescription}</p>
         </div>
@@ -49,31 +54,40 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       <section className="section">
         <div className="container project-detail-grid">
-          {project.image && (
-            <div className="project-detail-image">
-              <img src={project.image} alt={project.name} />
-            </div>
-          )}
+          <div>
+            {project.image && (
+              <div className="project-detail-image">
+                <img
+                  src={project.image}
+                  alt={project.name}
+                />
+              </div>
+            )}
+          </div>
 
           <div className="project-detail-content">
             {project.category && (
-              <span className="project-category">
+              <span className="section-label">
                 {project.category}
               </span>
             )}
 
             <h2>{project.name}</h2>
+
             <p>{project.description}</p>
 
             {project.technologies && (
               <div className="project-technologies">
                 <h3>Technologies</h3>
+
                 <div className="technology-list">
-                  {project.technologies.split(",").map((technology) => (
-                    <span className="technology-chip" key={technology}>
-                      {technology.trim()}
-                    </span>
-                  ))}
+                  {project.technologies
+                    .split(",")
+                    .map((technology) => (
+                      <span key={technology}>
+                        {technology.trim()}
+                      </span>
+                    ))}
                 </div>
               </div>
             )}
@@ -90,7 +104,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </a>
               )}
 
-              <Link href="/projects" className="btn btn-secondary">
+              <Link
+                href="/projects"
+                className="btn btn-secondary"
+              >
                 All Projects
               </Link>
             </div>
