@@ -39,24 +39,37 @@ export default function AdminEnquiries({
     useState<Enquiry[]>(initialEnquiries);
 
   const [search, setSearch] = useState("");
+
   const [statusFilter, setStatusFilter] =
     useState<"ALL" | EnquiryStatus>("ALL");
 
   const [updatingId, setUpdatingId] =
     useState<string | null>(null);
 
+  const [expandedId, setExpandedId] =
+    useState<string | null>(null);
+
   const filteredEnquiries = useMemo(() => {
-    const searchValue = search.toLowerCase().trim();
+    const searchValue =
+      search.toLowerCase().trim();
 
     return enquiries.filter((enquiry) => {
-      const serviceText = enquiry.service?.toLowerCase() ?? "";
+      const serviceText =
+        enquiry.service?.toLowerCase() ?? "";
 
       const matchesSearch =
         !searchValue ||
-        enquiry.name.toLowerCase().includes(searchValue) ||
-        enquiry.email.toLowerCase().includes(searchValue) ||
+        enquiry.name
+          .toLowerCase()
+          .includes(searchValue) ||
+        enquiry.email
+          .toLowerCase()
+          .includes(searchValue) ||
         serviceText.includes(searchValue) ||
         (enquiry.company || "")
+          .toLowerCase()
+          .includes(searchValue) ||
+        enquiry.message
           .toLowerCase()
           .includes(searchValue);
 
@@ -64,9 +77,16 @@ export default function AdminEnquiries({
         statusFilter === "ALL" ||
         enquiry.status === statusFilter;
 
-      return matchesSearch && matchesStatus;
+      return (
+        matchesSearch &&
+        matchesStatus
+      );
     });
-  }, [enquiries, search, statusFilter]);
+  }, [
+    enquiries,
+    search,
+    statusFilter,
+  ]);
 
   async function updateStatus(
     id: string,
@@ -75,52 +95,71 @@ export default function AdminEnquiries({
     setUpdatingId(id);
 
     try {
-      const response = await fetch("/api/admin/enquiries", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-          status,
-        }),
-      });
+      const response = await fetch(
+        "/api/admin/enquiries",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id,
+            status,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to update enquiry");
+        throw new Error(
+          "Failed to update enquiry"
+        );
       }
 
-      const updated = await response.json();
+      const updated =
+        await response.json();
 
       setEnquiries((current) =>
         current.map((enquiry) =>
           enquiry.id === id
             ? {
                 ...enquiry,
-                status: updated.status,
+                status:
+                  updated.status,
               }
             : enquiry
         )
       );
     } catch (error) {
       console.error(error);
-      alert("Could not update the enquiry status.");
+
+      alert(
+        "Could not update the enquiry status."
+      );
     } finally {
       setUpdatingId(null);
     }
   }
 
+  function toggleExpanded(id: string) {
+    setExpandedId((current) =>
+      current === id ? null : id
+    );
+  }
+
   return (
     <div className="admin-enquiries">
-
       {/* FILTERS */}
+
       <div className="admin-filters">
         <input
           type="search"
           placeholder="Search enquiries..."
           value={search}
           onChange={(event) =>
-            setSearch(event.target.value)
+            setSearch(
+              event.target.value
+            )
           }
         />
 
@@ -139,7 +178,10 @@ export default function AdminEnquiries({
           </option>
 
           {statuses.map((status) => (
-            <option key={status} value={status}>
+            <option
+              key={status}
+              value={status}
+            >
               {formatStatus(status)}
             </option>
           ))}
@@ -147,10 +189,13 @@ export default function AdminEnquiries({
       </div>
 
       {/* SUMMARY */}
+
       <div className="enquiry-summary">
         <div>
           <span>Total</span>
-          <strong>{enquiries.length}</strong>
+          <strong>
+            {enquiries.length}
+          </strong>
         </div>
 
         <div>
@@ -158,7 +203,9 @@ export default function AdminEnquiries({
           <strong>
             {
               enquiries.filter(
-                (item) => item.status === "NEW"
+                (item) =>
+                  item.status ===
+                  "NEW"
               ).length
             }
           </strong>
@@ -170,7 +217,8 @@ export default function AdminEnquiries({
             {
               enquiries.filter(
                 (item) =>
-                  item.status === "IN_PROGRESS"
+                  item.status ===
+                  "IN_PROGRESS"
               ).length
             }
           </strong>
@@ -182,7 +230,8 @@ export default function AdminEnquiries({
             {
               enquiries.filter(
                 (item) =>
-                  item.status === "COMPLETED"
+                  item.status ===
+                  "COMPLETED"
               ).length
             }
           </strong>
@@ -190,6 +239,7 @@ export default function AdminEnquiries({
       </div>
 
       {/* RESULTS */}
+
       {filteredEnquiries.length === 0 ? (
         <div className="enquiry-admin-empty">
           <div className="enquiry-admin-icon">
@@ -201,8 +251,9 @@ export default function AdminEnquiries({
           </h3>
 
           <p>
-            There are no enquiries matching your
-            current search or filter.
+            There are no enquiries
+            matching your current
+            search or filter.
           </p>
         </div>
       ) : (
@@ -217,79 +268,182 @@ export default function AdminEnquiries({
               <span>Date</span>
             </div>
 
-            {filteredEnquiries.map((enquiry) => (
-              <article
-                className="enquiry-row"
-                key={enquiry.id}
-              >
-                <div className="enquiry-customer">
-                  <strong>
-                    {enquiry.name}
-                  </strong>
+            {filteredEnquiries.map(
+              (enquiry) => {
+                const isExpanded =
+                  expandedId ===
+                  enquiry.id;
 
-                  <span>
-                    {enquiry.email}
-                  </span>
+                const isAIEnquiry =
+                  enquiry.message.includes(
+                    "AI-generated project brief"
+                  ) ||
+                  enquiry.message.includes(
+                    "AI-generated Project Brief"
+                  );
 
-                  {enquiry.company && (
-                    <small>
-                      {enquiry.company}
-                    </small>
-                  )}
-
-                  {enquiry.phone && (
-                    <small>
-                      {enquiry.phone}
-                    </small>
-                  )}
-                </div>
-
-                <div>
-                  <strong>
-                    {enquiry.service || "Not specified"}
-                  </strong>
-                </div>
-
-                <div>
-                  {enquiry.budget || "Not specified"}
-                </div>
-
-                <div>
-                  <select
-                    value={enquiry.status}
-                    disabled={
-                      updatingId === enquiry.id
-                    }
-                    onChange={(event) =>
-                      updateStatus(
-                        enquiry.id,
-                        event.target
-                          .value as EnquiryStatus
-                      )
-                    }
-                    className={`status-select status-${enquiry.status.toLowerCase()}`}
+                return (
+                  <article
+                    className={`enquiry-row ${
+                      isExpanded
+                        ? "is-expanded"
+                        : ""
+                    }`}
+                    key={enquiry.id}
                   >
-                    {statuses.map((status) => (
-                      <option
-                        key={status}
-                        value={status}
+                    {/* CUSTOMER */}
+
+                    <div className="enquiry-customer">
+                      <strong>
+                        {enquiry.name}
+                      </strong>
+
+                      <span>
+                        {enquiry.email}
+                      </span>
+
+                      {enquiry.company && (
+                        <small>
+                          {enquiry.company}
+                        </small>
+                      )}
+
+                      {enquiry.phone && (
+                        <small>
+                          {enquiry.phone}
+                        </small>
+                      )}
+                    </div>
+
+                    {/* SERVICE */}
+
+                    <div className="enquiry-service">
+                      <strong>
+                        {enquiry.service ||
+                          "Not specified"}
+                      </strong>
+
+                      {isAIEnquiry && (
+                        <span className="ai-enquiry-badge">
+                          AI CONSULTATION
+                        </span>
+                      )}
+                    </div>
+
+                    {/* BUDGET */}
+
+                    <div>
+                      {enquiry.budget ||
+                        "Not specified"}
+                    </div>
+
+                    {/* STATUS */}
+
+                    <div>
+                      <select
+                        value={
+                          enquiry.status
+                        }
+                        disabled={
+                          updatingId ===
+                          enquiry.id
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          updateStatus(
+                            enquiry.id,
+                            event.target
+                              .value as EnquiryStatus
+                          )
+                        }
+                        className={`status-select status-${enquiry.status.toLowerCase()}`}
                       >
-                        {formatStatus(status)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                        {statuses.map(
+                          (status) => (
+                            <option
+                              key={
+                                status
+                              }
+                              value={
+                                status
+                              }
+                            >
+                              {formatStatus(
+                                status
+                              )}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
 
-                <div className="enquiry-date">
-                  {formatDate(enquiry.createdAt)}
-                </div>
+                    {/* DATE */}
 
-                <div className="enquiry-message">
-                  <span>Project details</span>
-                  <p>{enquiry.message}</p>
-                </div>
-              </article>
-            ))}
+                    <div className="enquiry-date">
+                      {formatDate(
+                        enquiry.createdAt
+                      )}
+                    </div>
+
+                    {/* PROJECT DETAILS */}
+
+                    <div className="enquiry-message">
+                      <button
+                        type="button"
+                        className="enquiry-message-toggle"
+                        onClick={() =>
+                          toggleExpanded(
+                            enquiry.id
+                          )
+                        }
+                        aria-expanded={
+                          isExpanded
+                        }
+                      >
+                        <span>
+                          {isExpanded
+                            ? "Hide project details"
+                            : "View project details"}
+                        </span>
+
+                        <b>
+                          {isExpanded
+                            ? "↑"
+                            : "↓"}
+                        </b>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="enquiry-message-content">
+                          {isAIEnquiry && (
+                            <div className="admin-ai-label">
+                              <span>
+                                AI PROJECT BRIEF
+                              </span>
+
+                              <p>
+                                This enquiry
+                                includes
+                                information
+                                gathered
+                                during the
+                                AmakTech AI
+                                consultation.
+                              </p>
+                            </div>
+                          )}
+
+                          <p>
+                            {enquiry.message}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                );
+              }
+            )}
           </div>
         </div>
       )}
@@ -297,19 +451,26 @@ export default function AdminEnquiries({
   );
 }
 
-function formatStatus(status: EnquiryStatus) {
+function formatStatus(
+  status: EnquiryStatus
+) {
   return status
     .replace("_", " ")
     .toLowerCase()
-    .replace(/\b\w/g, (letter) =>
-      letter.toUpperCase()
+    .replace(
+      /\b\w/g,
+      (letter) =>
+        letter.toUpperCase()
     );
 }
 
 function formatDate(date: string) {
-  return new Intl.DateTimeFormat("en", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(date));
+  return new Intl.DateTimeFormat(
+    "en",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  ).format(new Date(date));
 }

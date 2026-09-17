@@ -8,6 +8,14 @@ type Message = {
   content: string;
 };
 
+type Recommendation = {
+  service: string;
+  slug: string;
+  reason: string;
+};
+
+type AIProjectBrief = string;
+
 const suggestions = [
   {
     title: "I need a website",
@@ -38,6 +46,10 @@ export default function AIAssistant() {
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recommendation, setRecommendation] =
+    useState<Recommendation | null>(null);
+  const [readyForEnquiry, setReadyForEnquiry] = useState(false);
+  const [projectBrief, setProjectBrief] = useState<AIProjectBrief>("");
 
   async function sendMessage(message?: string) {
     const text = (message ?? input).trim();
@@ -63,6 +75,13 @@ export default function AIAssistant() {
         },
         body: JSON.stringify({
           message: text,
+          conversation: [
+            ...messages,
+            {
+              role: "user",
+              content: text,
+            },
+          ],
         }),
       });
 
@@ -79,6 +98,16 @@ export default function AIAssistant() {
           content: data.reply,
         },
       ]);
+
+      if (data.recommendation) {
+        setRecommendation(data.recommendation);
+      }
+
+      if (data.projectBrief) {
+        setProjectBrief(data.projectBrief);
+      }
+
+      setReadyForEnquiry(Boolean(data.readyForEnquiry));
     } catch (error) {
       const errorText =
         error instanceof Error
@@ -127,7 +156,7 @@ export default function AIAssistant() {
 
       {/* Intro */}
       <div className="ai-assistant-intro">
-        <span className="ai-intro-label">LET'S GET STARTED</span>
+        <span className="ai-intro-label">LET&apos;S GET STARTED</span>
 
         <h2>
           Tell us what you&apos;re
@@ -202,6 +231,37 @@ export default function AIAssistant() {
                 <b>→</b>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Service Recommendation */}
+      {readyForEnquiry && recommendation && (
+        <div className="ai-recommendation">
+          <div className="ai-recommendation-content">
+            <span className="ai-recommendation-label">
+              RECOMMENDED FOR YOUR PROJECT
+            </span>
+
+            <h3>{recommendation.service}</h3>
+
+            <p>{recommendation.reason}</p>
+
+            <div className="ai-recommendation-meta">
+              <span>Based on your consultation</span>
+            </div>
+          </div>
+
+          <div className="ai-recommendation-action">
+            <Link
+              href={`/contact?service=${encodeURIComponent(
+                recommendation.slug
+              )}&brief=${encodeURIComponent(projectBrief)}`}
+              className="ai-start-project"
+            >
+              Start Your Project
+              <span>→</span>
+            </Link>
           </div>
         </div>
       )}
