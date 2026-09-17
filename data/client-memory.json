@@ -1,0 +1,19 @@
+{
+  "businessType": "bakery",
+  "location": "Harare",
+  "requirements": [
+    "website",
+    "gallery",
+    "menu",
+    "WhatsApp ordering",
+    "software"
+  ],
+  "preferences": {
+    "whatsapp": "WhatsApp contact or ordering",
+    "style": "modern, professional look"
+  },
+  "notes": [
+    "I run a bakery in Harare and need a modern website with a gallery, menu, and WhatsApp ordering."
+  ],
+  "lastUpdated": "2026-09-17T08:24:20.480Z"
+}

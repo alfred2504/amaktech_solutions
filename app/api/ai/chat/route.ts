@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { gemini } from "@/lib/gemini";
+import {
+  buildMemoryContext,
+  rememberClientMessage,
+} from "@/lib/ai-memory";
 
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 
@@ -309,6 +313,9 @@ export async function POST(request: Request) {
       )
       .join("\n\n");
 
+    const clientMemory = await rememberClientMessage(message);
+    const memoryContext = buildMemoryContext(clientMemory);
+
     const response = await gemini.models.generateContent({
       model: process.env.GEMINI_MODEL || "gemini-2.5-flash-lite",
 
@@ -374,6 +381,10 @@ export async function POST(request: Request) {
           parts: [
             {
               text: `${AMAKTECH_CONTEXT}
+
+KNOWN CLIENT MEMORY:
+
+${memoryContext}
 
 CONVERSATION SO FAR:
 
