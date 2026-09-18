@@ -1,8 +1,13 @@
-import { requireAdmin } from "@/lib/auth";
+import { getAdminSession } from "@/lib/auth";
 import AdminTestimonials from "@/components/AdminTestimonials";
+import { redirect } from "next/navigation";
 
 export default async function AdminTestimonialsPage() {
-  await requireAdmin();
+  const session = await getAdminSession();
+
+  if (!session) {
+    redirect("/admin/login");
+  }
 
   return (
     <main className="admin-page">
