@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { gemini } from "@/lib/gemini";
+import { getGeminiClient } from "@/lib/gemini";
 import {
   buildMemoryContext,
   rememberClientMessage,
@@ -281,16 +281,20 @@ export async function POST(request: Request) {
       content?: string;
     };
 
-    const conversation = Array.isArray(body.conversation)
+    const conversationInput = Array.isArray(body.conversation)
       ? body.conversation
-          .filter(
-            (item: ChatConversationItem) =>
-              item &&
-              (item.role === "user" || item.role === "assistant") &&
-              typeof item.content === "string"
-          )
-          .slice(-12)
-      : [];
+      : Array.isArray(body.messages)
+        ? body.messages
+        : [];
+
+    const conversation = conversationInput
+      .filter(
+        (item: ChatConversationItem) =>
+          item &&
+          (item.role === "user" || item.role === "assistant") &&
+          typeof item.content === "string"
+      )
+      .slice(-12);
 
     if (!message) {
       return NextResponse.json(
@@ -306,6 +310,16 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        {
+          error:
+            "The AI assistant is not configured yet. Please add GEMINI_API_KEY to your environment and restart the app.",
+        },
+        { status: 500 }
+      );
+    }
+
     const conversationText = conversation
       .map(
         (item: { role: "user" | "assistant"; content: string }) =>
@@ -315,6 +329,8 @@ export async function POST(request: Request) {
 
     const clientMemory = await rememberClientMessage(message);
     const memoryContext = buildMemoryContext(clientMemory);
+
+    const gemini = getGeminiClient();
 
     const response = await gemini.models.generateContent({
       model: process.env.GEMINI_MODEL || "gemini-2.5-flash-lite",
@@ -444,7 +460,23 @@ Ask only one useful question at a time when more information is needed.`,
       throw new Error("Gemini returned an empty response.");
     }
 
-    const aiResult = JSON.parse(rawResponse);
+    let cleanedResponse = rawResponse;
+
+    if (cleanedResponse.startsWith("```")) {
+      cleanedResponse = cleanedResponse
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```\s*$/i, "")
+        .trim();
+    }
+
+    let aiResult: any;
+
+    try {
+      aiResult = JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      console.error("Gemini JSON parse failed. Raw response:", rawResponse);
+      throw parseError;
+    }
 
     return NextResponse.json({
       reply:

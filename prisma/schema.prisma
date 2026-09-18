@@ -8,20 +8,28 @@ datasource db {
 }
 
 model Enquiry {
-	id        String        @id @default(cuid())
-	name      String
-	email     String
-	phone     String?
-	company   String?
-	service   String?
-	budget    String?
-	message   String
-	status    EnquiryStatus @default(NEW)
-	createdAt DateTime      @default(now())
-	updatedAt DateTime      @updatedAt
+    id              String        @id @default(cuid())
+    name            String
+    email           String
+    phone           String?
+    company         String?
+    service         String?
+    budget          String?
 
-	@@index([status])
-	@@index([createdAt])
+    // AI consultation information
+    aiGenerated     Boolean       @default(false)
+    aiProjectBrief  String?
+
+    // Additional information provided directly by the client
+    message         String
+
+    status          EnquiryStatus @default(NEW)
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+
+    @@index([status])
+    @@index([createdAt])
+    @@index([aiGenerated])
 }
 
 enum EnquiryStatus {

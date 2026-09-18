@@ -1,5 +1,5 @@
 {
-  "businessType": "bakery",
+  "businessType": "startup",
   "location": "Harare",
   "requirements": [
     "website",
@@ -13,7 +13,9 @@
     "style": "modern, professional look"
   },
   "notes": [
-    "I run a bakery in Harare and need a modern website with a gallery, menu, and WhatsApp ordering."
+    "I run a bakery in Harare and need a modern website with a gallery, menu, and WhatsApp ordering.",
+    "I need a website. Discuss a website for my business or organisation",
+    "I need my customers to view my items online, make orders and payments online"
   ],
-  "lastUpdated": "2026-09-17T08:24:20.480Z"
+  "lastUpdated": "2026-09-18T13:59:51.711Z"
 }

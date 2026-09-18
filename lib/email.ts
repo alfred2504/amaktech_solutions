@@ -20,6 +20,8 @@ export async function sendEnquiryNotification(enquiry: {
 	service?: string;
 	budget?: string;
 	message: string;
+	aiGenerated?: boolean;
+	aiProjectBrief?: string | null;
 }) {
 	const recipient = process.env.CONTACT_TO_EMAIL;
 

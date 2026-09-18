@@ -31,13 +31,16 @@ export function EnquiryForm() {
 
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+
   const [selectedService, setSelectedService] = useState(() =>
     serviceSlug && serviceSlugMap[serviceSlug]
       ? serviceSlugMap[serviceSlug]
       : ""
   );
 
-  const [projectBrief, setProjectBrief] = useState(() => aiBrief ?? "");
+  const [projectBrief, setProjectBrief] = useState(() =>
+    aiBrief ?? ""
+  );
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,36 +53,46 @@ export function EnquiryForm() {
     try {
       const formData = new FormData(form);
 
+      const message = String(formData.get("message") ?? "").trim();
+
+      const aiProjectBrief = projectBrief.trim();
+
       const response = await fetch("/api/enquiries", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...Object.fromEntries(formData.entries()),
-          message: projectBrief
-            ? `${projectBrief}\n\nAdditional information from client:\n${formData.get(
-                "message"
-              )}`
-            : formData.get("message"),
+          name: formData.get("name"),
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          company: formData.get("company"),
+          service: formData.get("service"),
+          budget: formData.get("budget"),
+          message,
+
+          // AI consultation information
+          aiGenerated: Boolean(aiProjectBrief),
+          aiProjectBrief: aiProjectBrief || null,
         }),
       });
 
       const body = await response.text();
 
-      let message = "";
+      let responseMessage = "";
 
       if (body) {
         try {
-          message = JSON.parse(body).message;
+          responseMessage = JSON.parse(body).message;
         } catch {
-          message = "The server returned an invalid response.";
+          responseMessage =
+            "The server returned an invalid response.";
         }
       }
 
       if (!response.ok) {
         throw new Error(
-          message ||
+          responseMessage ||
             "We could not submit your enquiry. Please try again."
         );
       }
@@ -90,7 +103,8 @@ export function EnquiryForm() {
       setProjectBrief("");
 
       setStatus(
-        message || "Your enquiry has been received."
+        responseMessage ||
+          "Your enquiry has been received."
       );
     } catch (err) {
       setStatus(
