@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getActiveProjects } from "@/lib/projects";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Projects | AmakTech Solutions",
   description:

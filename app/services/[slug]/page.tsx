@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServiceBySlug } from "@/lib/services";
 
+export const dynamic = "force-dynamic";
+
 type ServicePageProps = {
   params: Promise<{
     slug: string;
