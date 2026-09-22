@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "AmakTech Solutions | Transforming Ideas into Digital Solutions",
   description:
     "AmakTech Solutions provides professional graphic design, digital branding, website development, software engineering and technology solutions.",
+  icons: {
+    icon: "/images/brand-logo.png",
+    apple: "/images/brand-logo.png",
+  },
 };
 
 export default function RootLayout({

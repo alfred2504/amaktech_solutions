@@ -5,7 +5,30 @@ import {
   rememberClientMessage,
 } from "@/lib/ai-memory";
 
-const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash-lite";
+const SUPPORTED_GEMINI_MODELS = new Set([
+  "gemini-3.5-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.5-pro",
+  "gemini-3.5-pro-latest",
+  "gemini-2.5-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-latest",
+  "gemini-1.5-pro",
+  "gemini-1.5-pro-latest",
+]);
+
+function resolveGeminiModel() {
+  const requestedModel = (process.env.GEMINI_MODEL || FALLBACK_GEMINI_MODEL).trim();
+  return SUPPORTED_GEMINI_MODELS.has(requestedModel)
+    ? requestedModel
+    : FALLBACK_GEMINI_MODEL;
+}
+
+const DEFAULT_GEMINI_MODEL = resolveGeminiModel();
 
 const AMAKTECH_CONTEXT = `
 You are the official AmakTech AI Assistant.
@@ -332,8 +355,10 @@ export async function POST(request: Request) {
 
     const gemini = getGeminiClient();
 
+    const resolvedModel = resolveGeminiModel();
+
     const response = await gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash-lite",
+      model: resolvedModel,
 
       config: {
         responseMimeType: "application/json",

@@ -1,58 +1,55 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, safeDbQuery } from "@/lib/prisma";
 
 export async function getActiveServices() {
-  try {
-    return await prisma.service.findMany({
-      where: {
-        active: true,
-      },
-      orderBy: [
-        {
-          sortOrder: "asc",
+  return safeDbQuery(
+    () =>
+      prisma.service.findMany({
+        where: {
+          active: true,
         },
-        {
-          createdAt: "desc",
-        },
-      ],
-    });
-  } catch (error) {
-    console.error("Unable to load active services:", error);
-    return [];
-  }
+        orderBy: [
+          {
+            sortOrder: "asc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
+      }),
+    []
+  );
 }
 
 export async function getFeaturedServices() {
-  try {
-    return await prisma.service.findMany({
-      where: {
-        active: true,
-        featured: true,
-      },
-      orderBy: [
-        {
-          sortOrder: "asc",
+  return safeDbQuery(
+    () =>
+      prisma.service.findMany({
+        where: {
+          active: true,
+          featured: true,
         },
-        {
-          createdAt: "desc",
-        },
-      ],
-    });
-  } catch (error) {
-    console.error("Unable to load featured services:", error);
-    return [];
-  }
+        orderBy: [
+          {
+            sortOrder: "asc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
+      }),
+    []
+  );
 }
 
 export async function getServiceBySlug(slug: string) {
-  try {
-    return await prisma.service.findFirst({
-      where: {
-        slug,
-        active: true,
-      },
-    });
-  } catch (error) {
-    console.error("Unable to load service by slug:", error);
-    return null;
-  }
+  return safeDbQuery(
+    () =>
+      prisma.service.findFirst({
+        where: {
+          slug,
+          active: true,
+        },
+      }),
+    null
+  );
 }
