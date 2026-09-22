@@ -5,10 +5,10 @@ import {
   rememberClientMessage,
 } from "@/lib/ai-memory";
 
-const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash-lite";
-const SUPPORTED_GEMINI_MODELS = new Set([
-  "gemini-3.5-flash-lite",
+const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash";
+const SUPPORTED_GEMINI_MODELS = [
   "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
   "gemini-3.5-pro",
   "gemini-3.5-pro-latest",
   "gemini-2.5-flash-lite",
@@ -19,13 +19,22 @@ const SUPPORTED_GEMINI_MODELS = new Set([
   "gemini-1.5-flash-latest",
   "gemini-1.5-pro",
   "gemini-1.5-pro-latest",
-]);
+];
 
 function resolveGeminiModel() {
   const requestedModel = (process.env.GEMINI_MODEL || FALLBACK_GEMINI_MODEL).trim();
-  return SUPPORTED_GEMINI_MODELS.has(requestedModel)
+  return SUPPORTED_GEMINI_MODELS.includes(requestedModel)
     ? requestedModel
     : FALLBACK_GEMINI_MODEL;
+}
+
+function getGeminiModelCandidates() {
+  const requestedModel = resolveGeminiModel();
+  const preferred = SUPPORTED_GEMINI_MODELS.filter((model) => model === requestedModel || model.startsWith("gemini-3.5") || model.startsWith("gemini-2.5"));
+
+  const ordered = [requestedModel, ...preferred.filter((model) => model !== requestedModel)];
+
+  return [...new Set(ordered)];
 }
 
 const DEFAULT_GEMINI_MODEL = resolveGeminiModel();
@@ -356,72 +365,76 @@ export async function POST(request: Request) {
     const gemini = getGeminiClient();
 
     const resolvedModel = resolveGeminiModel();
+    let response;
+    let lastError: unknown;
 
-    const response = await gemini.models.generateContent({
-      model: resolvedModel,
+    for (const modelName of getGeminiModelCandidates()) {
+      try {
+        response = await gemini.models.generateContent({
+          model: modelName,
 
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            reply: {
-              type: "string",
-              description:
-                "The natural conversational response to the visitor.",
-            },
-
-            recommendation: {
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
               type: "object",
               properties: {
-                service: {
+                reply: {
                   type: "string",
                   description:
-                    "The recommended AmakTech service name.",
+                    "The natural conversational response to the visitor.",
                 },
 
-                slug: {
-                  type: "string",
-                  description:
-                    "The exact service slug from the AmakTech services list.",
+                recommendation: {
+                  type: "object",
+                  properties: {
+                    service: {
+                      type: "string",
+                      description:
+                        "The recommended AmakTech service name.",
+                    },
+
+                    slug: {
+                      type: "string",
+                      description:
+                        "The exact service slug from the AmakTech services list.",
+                    },
+
+                    reason: {
+                      type: "string",
+                      description:
+                        "A concise explanation of why this service fits the visitor's needs.",
+                    },
+                  },
+                  required: ["service", "slug", "reason"],
                 },
 
-                reason: {
+                readyForEnquiry: {
+                  type: "boolean",
+                  description:
+                    "True only when enough information has been gathered to recommend a service confidently.",
+                },
+
+                projectBrief: {
                   type: "string",
                   description:
-                    "A concise explanation of why this service fits the visitor's needs.",
+                    "A clean, concise project brief based only on information established during the consultation. Include the client's objective, known requirements, and useful project details. Do not invent missing information.",
                 },
               },
-              required: ["service", "slug", "reason"],
-            },
-
-            readyForEnquiry: {
-              type: "boolean",
-              description:
-                "True only when enough information has been gathered to recommend a service confidently.",
-            },
-
-            projectBrief: {
-              type: "string",
-              description:
-                "A clean, concise project brief based only on information established during the consultation. Include the client's objective, known requirements, and useful project details. Do not invent missing information.",
+              required: [
+                "reply",
+                "recommendation",
+                "readyForEnquiry",
+                "projectBrief",
+              ],
             },
           },
-          required: [
-            "reply",
-            "recommendation",
-            "readyForEnquiry",
-            "projectBrief",
-          ],
-        },
-      },
 
-      contents: [
-        {
-          role: "user",
-          parts: [
+          contents: [
             {
-              text: `${AMAKTECH_CONTEXT}
+              role: "user",
+              parts: [
+                {
+                  text: `${AMAKTECH_CONTEXT}
 
 KNOWN CLIENT MEMORY:
 
@@ -473,11 +486,39 @@ If there is not enough information to confidently recommend a service,
 still provide the most likely service, but set readyForEnquiry to false.
 
 Ask only one useful question at a time when more information is needed.`,
+                },
+              ],
             },
           ],
-        },
-      ],
-    });
+        });
+
+        break;
+      } catch (error) {
+        lastError = error;
+        const errorText = error instanceof Error ? error.message : String(error);
+        const messageLower = errorText.toLowerCase();
+        const isTransientFailure =
+          messageLower.includes("currently experiencing high demand") ||
+          messageLower.includes("unavailable") ||
+          messageLower.includes("503") ||
+          messageLower.includes("temporarily unavailable") ||
+          messageLower.includes("overloaded") ||
+          messageLower.includes("rate limit");
+
+        if (!isTransientFailure) {
+          throw error;
+        }
+
+        console.warn(
+          `Gemini model ${modelName} is temporarily unavailable. Retrying with the next model.`,
+          errorText
+        );
+      }
+    }
+
+    if (!response) {
+      throw lastError ?? new Error("Gemini returned no response.");
+    }
 
     const rawResponse = response.text?.trim();
 
