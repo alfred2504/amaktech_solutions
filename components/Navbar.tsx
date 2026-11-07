@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -12,13 +13,14 @@ const navigation = [
   { label: "Contact", href: "/contact" },
 ];
 
+const clientPortalUrl = "https://billing.amaktechsolutions.co.zw";
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="site-navbar">
       <div className="container site-navbar-inner">
-
         {/* LOGO */}
         <Link href="/" className="site-brand">
           <img
@@ -27,7 +29,7 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* NAVIGATION */}
+        {/* DESKTOP NAVIGATION */}
         <nav className="site-nav">
           {navigation.map((item) => (
             <Link key={item.href} href={item.href}>
@@ -38,6 +40,15 @@ export default function Navbar() {
           <Link href="/ai-assistant" className="site-nav-ai">
             AI Assistant
           </Link>
+
+          <a
+            href={clientPortalUrl}
+            className="site-nav-portal"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Client Portal
+          </a>
         </nav>
 
         {/* CTA */}
@@ -48,7 +59,7 @@ export default function Navbar() {
           Get Started
         </Link>
 
-        {/* MOBILE HAMBURGER */}
+        {/* MOBILE MENU BUTTON */}
         <button
           className="site-navbar-toggle"
           type="button"
@@ -60,19 +71,38 @@ export default function Navbar() {
           <span />
           <span />
         </button>
-
       </div>
 
+      {/* MOBILE MENU */}
       <div className={`site-mobile-menu ${mobileOpen ? "is-open" : ""}`}>
         <nav className="site-mobile-nav">
           {navigation.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMobileOpen(false)}
+            >
               {item.label}
             </Link>
           ))}
-          <Link href="/ai-assistant" className="site-mobile-ai" onClick={() => setMobileOpen(false)}>
+
+          <Link
+            href="/ai-assistant"
+            className="site-mobile-ai"
+            onClick={() => setMobileOpen(false)}
+          >
             AI Assistant
           </Link>
+
+          <a
+            href={clientPortalUrl}
+            className="site-mobile-portal"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMobileOpen(false)}
+          >
+            Client Portal
+          </a>
         </nav>
       </div>
     </header>
